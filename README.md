@@ -1,6 +1,6 @@
 # Code Crafters: Startup Market Intelligence
 
-### [🚀 Live Demo (v0 Preview)](https://v0.app/chat/f1-dashboard-design-cMpaEbINAmj?ref=GDKWZP)
+### [🚀 Live Demo (v0 Preview)]https://code-crafters-beta.vercel.app
 
 ## Overview
 **Code Crafters** is a high-performance market telemetry dashboard for founders. It translates complex startup data—across FinTech, HealthTech, SaaS, and Logistics—into an F1-inspired interface tailored for India’s top tech hubs.
