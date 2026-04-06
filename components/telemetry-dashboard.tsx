@@ -3,6 +3,7 @@
 import { TelemetryGauge } from "./telemetry-gauge"
 import { LiveCommentary } from "./live-commentary"
 import { GlobalComparison } from "./global-comparison"
+import { RaceEngineerReport } from "./race-engineer-report"
 import {
   CreditCard,
   Wind,
@@ -13,8 +14,19 @@ import {
   TrendingDown,
   Minus,
   RefreshCw,
+  HeartPulse,
+  Users,
+  FileCheck,
+  Zap,
+  FlaskConical,
+  Package,
+  Route,
+  FileText,
+  Truck as TruckIcon,
+  Fuel,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { useMissionControl } from "@/lib/mission-control-context"
 
 interface TelemetryDashboardProps {
   city: string
@@ -26,18 +38,18 @@ const cityData: Record<
     name: string
     circuit: string
     metrics: {
-      transactionVolume: number
-      competition: number
-      compliance: number
-      growthRate: number
-      operationalCost: number
+      grip: number
+      dirtyAir: number
+      trackTemp: number
+      sectorTimes: number
+      fuelBurn: number
     }
     trends: {
-      transactionVolume: "up" | "down" | "stable"
-      competition: "up" | "down" | "stable"
-      compliance: "up" | "down" | "stable"
-      growthRate: "up" | "down" | "stable"
-      operationalCost: "up" | "down" | "stable"
+      grip: "up" | "down" | "stable"
+      dirtyAir: "up" | "down" | "stable"
+      trackTemp: "up" | "down" | "stable"
+      sectorTimes: "up" | "down" | "stable"
+      fuelBurn: "up" | "down" | "stable"
     }
   }
 > = {
@@ -45,55 +57,80 @@ const cityData: Record<
     name: "Bangalore",
     circuit: "Electronic City GP",
     metrics: {
-      transactionVolume: 85,
-      competition: 42,
-      compliance: 67,
-      growthRate: 78,
-      operationalCost: 34,
+      grip: 85,
+      dirtyAir: 42,
+      trackTemp: 67,
+      sectorTimes: 78,
+      fuelBurn: 34,
     },
     trends: {
-      transactionVolume: "up",
-      competition: "down",
-      compliance: "stable",
-      growthRate: "up",
-      operationalCost: "down",
+      grip: "up",
+      dirtyAir: "down",
+      trackTemp: "stable",
+      sectorTimes: "up",
+      fuelBurn: "down",
     },
   },
   mumbai: {
     name: "Mumbai",
     circuit: "Marine Drive Circuit",
     metrics: {
-      transactionVolume: 72,
-      competition: 68,
-      compliance: 82,
-      growthRate: 65,
-      operationalCost: 56,
+      grip: 72,
+      dirtyAir: 68,
+      trackTemp: 82,
+      sectorTimes: 65,
+      fuelBurn: 56,
     },
     trends: {
-      transactionVolume: "stable",
-      competition: "up",
-      compliance: "up",
-      growthRate: "down",
-      operationalCost: "up",
+      grip: "stable",
+      dirtyAir: "up",
+      trackTemp: "up",
+      sectorTimes: "down",
+      fuelBurn: "up",
     },
   },
   chennai: {
     name: "Chennai",
     circuit: "Marina Beach Track",
     metrics: {
-      transactionVolume: 91,
-      competition: 35,
-      compliance: 75,
-      growthRate: 88,
-      operationalCost: 28,
+      grip: 91,
+      dirtyAir: 35,
+      trackTemp: 75,
+      sectorTimes: 88,
+      fuelBurn: 28,
     },
     trends: {
-      transactionVolume: "up",
-      competition: "stable",
-      compliance: "down",
-      growthRate: "up",
-      operationalCost: "down",
+      grip: "up",
+      dirtyAir: "stable",
+      trackTemp: "down",
+      sectorTimes: "up",
+      fuelBurn: "down",
     },
+  },
+}
+
+// Industry-specific icons
+const industryIcons = {
+  FinTech: {
+    grip: CreditCard,
+    dirtyAir: Wind,
+    trackTemp: Shield,
+    sectorTimes: Timer,
+    fuelBurn: Wallet,
+  },
+  HealthTech: {
+    grip: HeartPulse,
+    dirtyAir: Users,
+    trackTemp: FileCheck,
+    sectorTimes: Zap,
+    fuelBurn: FlaskConical,
+  },
+  Logistics: {
+    grip: Package,
+    dirtyAir: Route,
+    trackTemp: FileText,
+    sectorTimes: TruckIcon,
+    fuelBurn: Fuel,
   },
 }
 
@@ -107,6 +144,8 @@ function TrendIcon({ trend }: { trend: "up" | "down" | "stable" }) {
 
 export function TelemetryDashboard({ city }: TelemetryDashboardProps) {
   const data = cityData[city] || cityData.bangalore
+  const { industry, metrics: industryMetrics, startupProfile } = useMissionControl()
+  const icons = industryIcons[industry]
 
   return (
     <main className="flex-1 overflow-auto bg-background p-6 lg:p-8">
@@ -121,7 +160,7 @@ export function TelemetryDashboard({ city }: TelemetryDashboardProps) {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-3xl">
-                FinTech Telemetry
+                {startupProfile.teamName ? `${startupProfile.teamName} Telemetry` : `${industry} Telemetry`}
               </h1>
               <Badge
                 variant="outline"
@@ -131,7 +170,7 @@ export function TelemetryDashboard({ city }: TelemetryDashboardProps) {
               </Badge>
             </div>
             <p className="text-muted-foreground">
-              Real-time market intelligence for{" "}
+              Real-time {industry.toLowerCase()} intelligence for{" "}
               <span className="font-medium text-[oklch(0.8_0.18_195)]">
                 {data.circuit}
               </span>
@@ -144,77 +183,82 @@ export function TelemetryDashboard({ city }: TelemetryDashboardProps) {
         </div>
       </header>
 
-      {/* Telemetry Grid - FinTech Metrics */}
+      {/* Telemetry Grid - Dynamic Industry Metrics */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <div className="relative">
           <TelemetryGauge
-            label="Transaction Volume"
-            subLabel="Market Demand"
-            value={data.metrics.transactionVolume}
+            label={industryMetrics.grip.label}
+            subLabel={industryMetrics.grip.subLabel}
+            value={data.metrics.grip}
             maxValue={100}
-            icon={CreditCard}
+            icon={icons.grip}
             color="cyan"
           />
           <div className="absolute right-4 top-4">
-            <TrendIcon trend={data.trends.transactionVolume} />
+            <TrendIcon trend={data.trends.grip} />
           </div>
         </div>
 
         <div className="relative">
           <TelemetryGauge
-            label="Competition"
-            subLabel="Market Density"
-            value={data.metrics.competition}
+            label={industryMetrics.dirtyAir.label}
+            subLabel={industryMetrics.dirtyAir.subLabel}
+            value={data.metrics.dirtyAir}
             maxValue={100}
-            icon={Wind}
+            icon={icons.dirtyAir}
             color="purple"
           />
           <div className="absolute right-4 top-4">
-            <TrendIcon trend={data.trends.competition} />
+            <TrendIcon trend={data.trends.dirtyAir} />
           </div>
         </div>
 
         <div className="relative">
           <TelemetryGauge
-            label="Compliance"
-            subLabel="Regulatory Index"
-            value={data.metrics.compliance}
+            label={industryMetrics.trackTemp.label}
+            subLabel={industryMetrics.trackTemp.subLabel}
+            value={data.metrics.trackTemp}
             maxValue={100}
-            icon={Shield}
+            icon={icons.trackTemp}
             color="orange"
           />
           <div className="absolute right-4 top-4">
-            <TrendIcon trend={data.trends.compliance} />
+            <TrendIcon trend={data.trends.trackTemp} />
           </div>
         </div>
 
         <div className="relative">
           <TelemetryGauge
-            label="Growth Rate"
-            subLabel="Sector Velocity"
-            value={data.metrics.growthRate}
+            label={industryMetrics.sectorTimes.label}
+            subLabel={industryMetrics.sectorTimes.subLabel}
+            value={data.metrics.sectorTimes}
             maxValue={100}
-            icon={Timer}
+            icon={icons.sectorTimes}
             color="green"
           />
           <div className="absolute right-4 top-4">
-            <TrendIcon trend={data.trends.growthRate} />
+            <TrendIcon trend={data.trends.sectorTimes} />
           </div>
         </div>
 
         <div className="relative sm:col-span-2 lg:col-span-1">
           <TelemetryGauge
-            label="Operational Cost"
-            subLabel="Burn Rate"
-            value={data.metrics.operationalCost}
+            label={industryMetrics.fuelBurn.label}
+            subLabel={industryMetrics.fuelBurn.subLabel}
+            value={data.metrics.fuelBurn}
             maxValue={100}
-            icon={Wallet}
+            icon={icons.fuelBurn}
             color="red"
           />
           <div className="absolute right-4 top-4">
-            <TrendIcon trend={data.trends.operationalCost} />
+            <TrendIcon trend={data.trends.fuelBurn} />
           </div>
         </div>
+      </div>
+
+      {/* Race Engineer's Report */}
+      <div className="mt-8">
+        <RaceEngineerReport city={city} />
       </div>
 
       {/* Summary Section */}
@@ -229,10 +273,10 @@ export function TelemetryDashboard({ city }: TelemetryDashboardProps) {
             </p>
             <p className="mt-1 text-2xl font-bold text-[oklch(0.8_0.18_195)]">
               {Math.round(
-                (data.metrics.transactionVolume +
-                  (100 - data.metrics.competition) +
-                  data.metrics.growthRate +
-                  (100 - data.metrics.operationalCost)) /
+                (data.metrics.grip +
+                  (100 - data.metrics.dirtyAir) +
+                  data.metrics.sectorTimes +
+                  (100 - data.metrics.fuelBurn)) /
                   4
               )}
               /100
@@ -251,7 +295,7 @@ export function TelemetryDashboard({ city }: TelemetryDashboardProps) {
               Growth Potential
             </p>
             <p className="mt-1 text-2xl font-bold text-[oklch(0.7_0.2_145)]">
-              {data.metrics.growthRate > 75 ? "High" : data.metrics.growthRate > 50 ? "Medium" : "Low"}
+              {data.metrics.sectorTimes > 75 ? "High" : data.metrics.sectorTimes > 50 ? "Medium" : "Low"}
             </p>
           </div>
           <div className="rounded-lg bg-secondary/50 p-4">
@@ -260,14 +304,14 @@ export function TelemetryDashboard({ city }: TelemetryDashboardProps) {
             </p>
             <p
               className={`mt-1 text-2xl font-bold ${
-                data.metrics.operationalCost > 50
+                data.metrics.fuelBurn > 50
                   ? "text-[oklch(0.6_0.22_25)]"
-                  : data.metrics.operationalCost > 30
+                  : data.metrics.fuelBurn > 30
                     ? "text-[oklch(0.75_0.15_55)]"
                     : "text-[oklch(0.7_0.2_145)]"
               }`}
             >
-              {data.metrics.operationalCost > 50 ? "High" : data.metrics.operationalCost > 30 ? "Medium" : "Low"}
+              {data.metrics.fuelBurn > 50 ? "High" : data.metrics.fuelBurn > 30 ? "Medium" : "Low"}
             </p>
           </div>
         </div>

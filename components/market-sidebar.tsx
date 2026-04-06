@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import {
   Flag,
   MapPin,
@@ -10,6 +9,10 @@ import {
   Settings,
   ChevronDown,
   Circle,
+  Rocket,
+  Briefcase,
+  HeartPulse,
+  Truck,
 } from "lucide-react"
 import {
   Select,
@@ -19,11 +22,18 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { useMissionControl, type Industry } from "@/lib/mission-control-context"
 
 const cities = [
   { id: "bangalore", name: "Bangalore", circuit: "Electronic City GP", status: "live" },
   { id: "mumbai", name: "Mumbai", circuit: "Marine Drive Circuit", status: "active" },
   { id: "chennai", name: "Chennai", circuit: "Marina Beach Track", status: "active" },
+]
+
+const industries: { id: Industry; name: string; icon: typeof Briefcase }[] = [
+  { id: "FinTech", name: "FinTech", icon: Briefcase },
+  { id: "HealthTech", name: "HealthTech", icon: HeartPulse },
+  { id: "Logistics", name: "Logistics", icon: Truck },
 ]
 
 interface MarketSidebarProps {
@@ -33,6 +43,8 @@ interface MarketSidebarProps {
 
 export function MarketSidebar({ selectedCity, onCityChange }: MarketSidebarProps) {
   const currentCity = cities.find((c) => c.id === selectedCity) || cities[0]
+  const { industry, setIndustry, startupProfile } = useMissionControl()
+  const currentIndustry = industries.find((i) => i.id === industry) || industries[0]
 
   return (
     <aside className="flex h-[calc(100vh-4rem)] w-72 flex-col border-r border-border bg-sidebar">
@@ -43,11 +55,49 @@ export function MarketSidebar({ selectedCity, onCityChange }: MarketSidebarProps
         </div>
         <div>
           <h1 className="text-lg font-bold tracking-tight text-sidebar-foreground">
-            FinTech Telemetry
+            {startupProfile.teamName || "MarketPrix"}
           </h1>
-          <p className="text-xs text-muted-foreground">Market Intelligence</p>
+          <p className="text-xs text-muted-foreground">
+            {startupProfile.foundingYear ? `Est. ${startupProfile.foundingYear}` : "Mission Control"}
+          </p>
         </div>
       </div>
+
+      {/* Mission Control - Industry Selector */}
+      <div className="p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <Rocket className="h-4 w-4 text-[oklch(0.65_0.2_290)]" />
+          <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Mission Control
+          </label>
+        </div>
+        <Select value={industry} onValueChange={(val) => setIndustry(val as Industry)}>
+          <SelectTrigger className="h-12 w-full border-border bg-sidebar-accent">
+            <div className="flex items-center gap-3">
+              <currentIndustry.icon className="h-4 w-4 text-[oklch(0.65_0.2_290)]" />
+              <div className="text-left">
+                <SelectValue placeholder="Select industry" />
+              </div>
+            </div>
+          </SelectTrigger>
+          <SelectContent className="border-border bg-sidebar">
+            {industries.map((ind) => (
+              <SelectItem
+                key={ind.id}
+                value={ind.id}
+                className="focus:bg-sidebar-accent"
+              >
+                <div className="flex items-center gap-3">
+                  <ind.icon className="h-4 w-4 text-[oklch(0.65_0.2_290)]" />
+                  <span className="font-medium">{ind.name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Separator className="bg-border" />
 
       {/* City Selector */}
       <div className="p-4">
@@ -119,10 +169,10 @@ export function MarketSidebar({ selectedCity, onCityChange }: MarketSidebarProps
             <div className="flex items-center justify-between rounded-lg bg-sidebar-accent p-3">
               <div className="flex items-center gap-2">
                 <Activity className="h-4 w-4 text-[oklch(0.8_0.18_195)]" />
-                <span className="text-sm text-sidebar-foreground">Updates</span>
+                <span className="text-sm text-sidebar-foreground">Domain</span>
               </div>
               <span className="text-sm font-medium text-[oklch(0.8_0.18_195)]">
-                Real-time
+                {industry}
               </span>
             </div>
           </div>

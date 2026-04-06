@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import {
@@ -15,8 +15,15 @@ import {
   LogOut,
   ChevronRight,
   Star,
+  Rocket,
+  Building2,
+  CalendarDays,
+  Save,
 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
+import { useMissionControl } from "@/lib/mission-control-context"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 const driverLevelConfig = {
   Rookie: {
@@ -77,13 +84,29 @@ const settingsSections = [
 
 export default function ProfilePage() {
   const { user, isAuthenticated, logout } = useAuth()
+  const { startupProfile, updateStartupProfile, industry } = useMissionControl()
   const router = useRouter()
+
+  const [teamName, setTeamName] = useState(startupProfile.teamName)
+  const [foundingYear, setFoundingYear] = useState(startupProfile.foundingYear)
+  const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/login")
     }
   }, [isAuthenticated, router])
+
+  useEffect(() => {
+    setTeamName(startupProfile.teamName)
+    setFoundingYear(startupProfile.foundingYear)
+  }, [startupProfile])
+
+  const handleSaveProfile = () => {
+    updateStartupProfile({ teamName, foundingYear })
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
 
   if (!isAuthenticated || !user) {
     return (
@@ -185,6 +208,81 @@ export default function ProfilePage() {
             </div>
           </div>
         </motion.div>
+
+        {/* Startup Profile Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="mb-8 rounded-xl border border-border bg-card"
+        >
+          <div className="border-b border-border p-6">
+            <div className="flex items-center gap-3">
+              <Rocket className="h-5 w-5 text-[oklch(0.65_0.2_290)]" />
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">
+                  Startup Profile
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Customize your team identity in {industry}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="p-6">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <label className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  Team Name
+                </label>
+                <Input
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  placeholder="Enter your startup name"
+                  className="h-12 border-border bg-secondary/50 text-foreground placeholder:text-muted-foreground focus-visible:ring-[oklch(0.8_0.18_195)]"
+                />
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  This will appear in the dashboard header
+                </p>
+              </div>
+              <div>
+                <label className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                  Founding Year
+                </label>
+                <Input
+                  value={foundingYear}
+                  onChange={(e) => setFoundingYear(e.target.value)}
+                  placeholder="e.g., 2024"
+                  maxLength={4}
+                  className="h-12 border-border bg-secondary/50 text-foreground placeholder:text-muted-foreground focus-visible:ring-[oklch(0.8_0.18_195)]"
+                />
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Year your startup was founded
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex items-center gap-4">
+              <Button
+                onClick={handleSaveProfile}
+                className="h-11 bg-[oklch(0.65_0.2_290)] px-6 text-white hover:bg-[oklch(0.55_0.2_290)]"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                Save Profile
+              </Button>
+              {saved && (
+                <motion.span
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="text-sm font-medium text-[oklch(0.7_0.2_145)]"
+                >
+                  Profile saved successfully!
+                </motion.span>
+              )}
+            </div>
+          </div>
+        </motion.section>
 
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Saved City Reports */}

@@ -8,6 +8,7 @@ import {
   MapPin,
   Trophy,
 } from "lucide-react"
+import { useMissionControl } from "@/lib/mission-control-context"
 
 const cities = [
   {
@@ -16,18 +17,18 @@ const cities = [
     circuit: "Electronic City GP",
     rank: 2,
     metrics: {
-      transactionVolume: 85,
-      competition: 42,
-      compliance: 67,
-      growthRate: 78,
-      operationalCost: 34,
+      grip: 85,
+      dirtyAir: 42,
+      trackTemp: 67,
+      sectorTimes: 78,
+      fuelBurn: 34,
     },
     trends: {
-      transactionVolume: "up" as const,
-      competition: "down" as const,
-      compliance: "stable" as const,
-      growthRate: "up" as const,
-      operationalCost: "down" as const,
+      grip: "up" as const,
+      dirtyAir: "down" as const,
+      trackTemp: "stable" as const,
+      sectorTimes: "up" as const,
+      fuelBurn: "down" as const,
     },
     overallScore: 82,
   },
@@ -37,18 +38,18 @@ const cities = [
     circuit: "Marine Drive Circuit",
     rank: 3,
     metrics: {
-      transactionVolume: 72,
-      competition: 68,
-      compliance: 82,
-      growthRate: 65,
-      operationalCost: 56,
+      grip: 72,
+      dirtyAir: 68,
+      trackTemp: 82,
+      sectorTimes: 65,
+      fuelBurn: 56,
     },
     trends: {
-      transactionVolume: "stable" as const,
-      competition: "up" as const,
-      compliance: "up" as const,
-      growthRate: "down" as const,
-      operationalCost: "up" as const,
+      grip: "stable" as const,
+      dirtyAir: "up" as const,
+      trackTemp: "up" as const,
+      sectorTimes: "down" as const,
+      fuelBurn: "up" as const,
     },
     overallScore: 68,
   },
@@ -58,30 +59,24 @@ const cities = [
     circuit: "Marina Beach Track",
     rank: 1,
     metrics: {
-      transactionVolume: 91,
-      competition: 35,
-      compliance: 75,
-      growthRate: 88,
-      operationalCost: 28,
+      grip: 91,
+      dirtyAir: 35,
+      trackTemp: 75,
+      sectorTimes: 88,
+      fuelBurn: 28,
     },
     trends: {
-      transactionVolume: "up" as const,
-      competition: "stable" as const,
-      compliance: "down" as const,
-      growthRate: "up" as const,
-      operationalCost: "down" as const,
+      grip: "up" as const,
+      dirtyAir: "stable" as const,
+      trackTemp: "down" as const,
+      sectorTimes: "up" as const,
+      fuelBurn: "down" as const,
     },
     overallScore: 89,
   },
 ]
 
-const metricLabels = {
-  transactionVolume: "Transaction Volume",
-  competition: "Competition Level",
-  compliance: "Compliance Index",
-  growthRate: "Growth Rate",
-  operationalCost: "Operational Cost",
-}
+const metricKeys = ["grip", "dirtyAir", "trackTemp", "sectorTimes", "fuelBurn"] as const
 
 function TrendIcon({ trend }: { trend: "up" | "down" | "stable" }) {
   if (trend === "up")
@@ -93,7 +88,7 @@ function TrendIcon({ trend }: { trend: "up" | "down" | "stable" }) {
 
 function getMetricColor(metric: string, value: number): string {
   // For competition and operational cost, lower is better
-  if (metric === "competition" || metric === "operationalCost") {
+  if (metric === "dirtyAir" || metric === "fuelBurn") {
     if (value < 40) return "text-[oklch(0.7_0.2_145)]"
     if (value < 60) return "text-[oklch(0.75_0.15_55)]"
     return "text-[oklch(0.6_0.22_25)]"
@@ -105,8 +100,15 @@ function getMetricColor(metric: string, value: number): string {
 }
 
 export function GlobalComparison() {
+  const { metrics: industryMetrics, industry } = useMissionControl()
+  
   // Sort by rank for display
   const sortedCities = [...cities].sort((a, b) => a.rank - b.rank)
+
+  // Map metric keys to their labels from the current industry
+  const getMetricLabel = (key: typeof metricKeys[number]): string => {
+    return industryMetrics[key].label
+  }
 
   return (
     <section className="rounded-xl border border-border bg-card">
@@ -117,7 +119,7 @@ export function GlobalComparison() {
               Global Circuit Comparison
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Side-by-side market telemetry across all circuits
+              Side-by-side {industry.toLowerCase()} telemetry across all circuits
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-lg bg-[oklch(0.8_0.18_195/0.1)] px-3 py-1.5">
@@ -136,12 +138,12 @@ export function GlobalComparison() {
               <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Circuit
               </th>
-              {Object.values(metricLabels).map((label) => (
+              {metricKeys.map((key) => (
                 <th
-                  key={label}
+                  key={key}
                   className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground"
                 >
-                  {label}
+                  {getMetricLabel(key)}
                 </th>
               ))}
               <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -184,8 +186,7 @@ export function GlobalComparison() {
                     </div>
                   </div>
                 </td>
-                {(Object.keys(metricLabels) as Array<keyof typeof metricLabels>).map(
-                  (metricKey) => (
+                {metricKeys.map((metricKey) => (
                     <td key={metricKey} className="px-4 py-4">
                       <div className="flex flex-col items-center gap-1">
                         <div className="flex items-center gap-1">
@@ -205,8 +206,8 @@ export function GlobalComparison() {
                             animate={{ width: `${city.metrics[metricKey]}%` }}
                             transition={{ duration: 1, delay: index * 0.1 + 0.3 }}
                             className={`h-full rounded-full ${
-                              metricKey === "competition" ||
-                              metricKey === "operationalCost"
+                              metricKey === "dirtyAir" ||
+                              metricKey === "fuelBurn"
                                 ? city.metrics[metricKey] < 40
                                   ? "bg-[oklch(0.7_0.2_145)]"
                                   : city.metrics[metricKey] < 60
