@@ -1,35 +1,24 @@
-# v0-market-prix
+Code Crafters: Startup Market Intelligence
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+[Live Demo] ([https://v0.app/chat/f1-dashboard-design-cMpaEbINAmj?ref=GDKWZP])
 
-## Built with v0
+Overview:
+Code Crafters is a high-performance market telemetry dashboard for founders. It translates complex startup data—across FinTech, HealthTech, SaaS, and Logistics—into an F1-inspired interface for India’s top tech hubs.
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+Key Metrics
+Grip: Market Demand & Adoption
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_I6L4fib6MYqgRGEwTJwSlm7Q3wLW)
+Dirty Air: Competitive Density
 
-## Getting Started
+Track Temp: Regulatory Complexity
 
-First, run the development server:
+Sector Times: Growth Acceleration
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+Fuel Burn: Operational Costs (Hiring/Rent)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Tech Stack
+Framework: Next.js 14, Tailwind CSS
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Animations: Framer Motion
 
-## Learn More
-
-To learn more, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
-
-<a href="https://v0.app/chat/api/kiro/clone/Riya-k7/v0-market-prix" alt="Open in Kiro"><img src="https://pdgvvgmkdvyeydso.public.blob.vercel-storage.com/open%20in%20kiro.svg?sanitize=true" /></a>
+Deployment: Vercel + GitHub CI/CD
